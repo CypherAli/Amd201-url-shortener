@@ -1,0 +1,30 @@
+# Render.com Deployment Configuration
+
+services:
+  # Web Service
+  - type: web
+    name: amd201-urlshortener
+    env: docker
+    dockerfilePath: ./Dockerfile
+    region: singapore
+    plan: free
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: DATABASE_URL
+        fromDatabase:
+          name: amd201-db
+          property: connectionString
+      - key: SUPABASE_JWT_SECRET
+        sync: false  # Set manually in Render dashboard
+
+databases:
+  - name: amd201-db
+    databaseName: urlshortener
+    user: amd201_user
+    region: singapore
+    plan: free

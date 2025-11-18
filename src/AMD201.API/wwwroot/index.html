@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMD201 URL Shortener</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #app {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .auth-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e0e7ff;
+            color: #667eea;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-discord {
+            background: #5865F2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-discord:hover {
+            background: #4752C4;
+        }
+
+        .btn-github {
+            background: #24292e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-github:hover {
+            background: #1b1f23;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 10px;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .shorten-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shorten-form input {
+            flex: 1;
+        }
+
+        .result {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result a {
+            color: #667eea;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .result a:hover {
+            text-decoration: underline;
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .url-info {
+            flex: 1;
+        }
+
+        .short-code {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .original-url {
+            color: #718096;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .stats {
+            text-align: right;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: #718096;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>🔗 AMD201 URL Shortener</h1>
+            <p>Shorten your URLs quickly and easily</p>
+        </div>
+
+        <div class="card">
+            <div class="auth-section">
+                <div class="user-info" v-if="user">
+                    <span>👤 {{ user.email }}</span>
+                </div>
+                <div v-else>
+                    <span style="color: #718096;">Not signed in</span>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" @click="showAuthModal" v-if="!user">Sign In</button>
+                    <button class="btn btn-danger" @click="signOut" v-else>Sign Out</button>
+                </div>
+            </div>
+
+            <div class="tabs" v-if="user">
+                <button class="tab" :class="{ active: activeTab === 'shorten' }" @click="activeTab = 'shorten'">
+                    Shorten URL
+                </button>
+                <button class="tab" :class="{ active: activeTab === 'history' }" @click="activeTab = 'history'; loadHistory()">
+                    My URLs
+                </button>
+            </div>
+
+            <div v-if="error" class="error">{{ error }}</div>
+            <div v-if="success" class="success">{{ success }}</div>
+
+            <!-- Shorten URL Tab -->
+            <div v-show="!user || activeTab === 'shorten'">
+                <div v-if="editMode" style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+                    <strong>✏️ Editing URL:</strong> {{ baseUrl }}/{{ editingUrl.shortCode }}
+                    <button class="btn btn-secondary" @click="cancelEdit" style="float: right; padding: 5px 15px;">Cancel</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Long URL</label>
+                    <input 
+                        :value="editMode ? editOriginalUrl : longUrl"
+                        @input="editMode ? (editOriginalUrl = $event.target.value) : (longUrl = $event.target.value)"
+                        type="url" 
+                        placeholder="https://example.com/very/long/url"
+                        @keyup.enter="editMode ? saveEdit() : shortenUrl()"
+                    >
+                </div>
+
+                <div class="input-group" v-if="user">
+                    <label>Custom Short Link (Optional)</label>
+                    <input 
+                        :value="editMode ? editCustomCode : customCode"
+                        @input="editMode ? (editCustomCode = $event.target.value) : (customCode = $event.target.value, checkAvailability())"
+                        type="text" 
+                        placeholder="my-custom-link"
+                        maxlength="20"
+                    >
+                    <small v-if="!editMode && customCode && isChecking" style="display: block; margin-top: 5px; color: #718096;">Checking availability...</small>
+                    <small v-if="!editMode && customCode && !isChecking && isAvailable" style="color: #48bb78; display: block; margin-top: 5px;">✓ Available</small>
+                    <small v-if="!editMode && customCode && !isChecking && !isAvailable && customCode.length >= 3" style="color: #f56565; display: block; margin-top: 5px;">✗ Already taken</small>
+                    <small v-if="!editMode && customCode && customCode.length < 3" style="color: #718096; display: block; margin-top: 5px;">Minimum 3 characters</small>
+                </div>
+
+                <button class="btn btn-primary" @click="editMode ? saveEdit() : shortenUrl()" :disabled="loading" style="width: 100%; margin-top: 10px;">
+                    {{ loading ? (editMode ? 'Updating...' : 'Shortening...') : (editMode ? '💾 Save Changes' : 'Shorten URL') }}
+                </button>
+
+                <div v-if="shortUrl" class="result" style="margin-top: 20px;">
+                    <strong>Your shortened URL:</strong><br>
+                    <a :href="shortUrl" target="_blank" style="font-size: 1.1rem; word-break: break-all;">{{ shortUrl }}</a>
+                    <button class="btn btn-secondary" @click="copyToClipboard" style="margin-top: 10px; padding: 8px 20px;">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div v-show="user && activeTab === 'history'">
+                <div v-if="historyLoading" style="text-align: center; padding: 20px;">Loading...</div>
+                <div v-else-if="history.length === 0">
+                    <p style="text-align: center; color: #718096; padding: 40px 0;">
+                        No URLs yet. Create your first shortened URL!
+                    </p>
+                </div>
+                <div v-else>
+                    <div class="history-item" v-for="item in history" :key="item.shortCode">
+                        <div class="url-info">
+                            <div class="short-code">{{ baseUrl }}/{{ item.shortCode }}</div>
+                            <div class="original-url">{{ item.originalUrl }}</div>
+                            <small v-if="item.isCustom" style="color: #667eea;">✨ Custom</small>
+                        </div>
+                        <div class="stats">
+                            <div>{{ item.clickCount }} clicks</div>
+                            <small>{{ formatDate(item.createdAt) }}</small>
+                            <div style="margin-top: 10px;">
+                                <button class="btn btn-secondary" @click="startEdit(item)" style="padding: 5px 10px; margin-right: 5px; font-size: 0.85rem;">
+                                    ✏️ Edit
+                                </button>
+                                <button class="btn btn-danger" @click="deleteUrl(item)" style="padding: 5px 10px; font-size: 0.85rem;">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Modal -->
+        <div v-if="showAuth" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" @click.self="showAuth = false">
+            <div class="card" style="width: 450px; max-width: 90%;">
+                <h2 style="margin-bottom: 10px;">{{ authMode === 'signin' ? 'Sign In' : 'Sign Up' }}</h2>
+                <p style="color: #718096; margin-bottom: 25px; font-size: 0.95rem;">
+                    {{ authMode === 'signin' ? 'Welcome back! Sign in to your account' : 'Create a new account to get started' }}
+                </p>
+
+                <!-- Social Login Buttons -->
+                <button class="btn btn-discord" @click="signInWithDiscord" style="width: 100%; margin-bottom: 10px;">
+                    <svg width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+                    Continue with Discord
+                </button>
+                
+                <button class="btn btn-github" @click="signInWithGitHub" style="width: 100%; margin-bottom: 20px;">
+                    <svg width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    Continue with GitHub
+                </button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input v-model="authEmail" type="email" placeholder="you@example.com" @keyup.enter="authMode === 'signin' ? signIn() : signUp()">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input v-model="authPassword" type="password" placeholder="••••••••" @keyup.enter="authMode === 'signin' ? signIn() : signUp()">
+                </div>
+
+                <button class="btn btn-primary" @click="authMode === 'signin' ? signIn() : signUp()" :disabled="loading" style="width: 100%; margin-bottom: 15px;">
+                    {{ loading ? 'Please wait...' : (authMode === 'signin' ? 'Sign In' : 'Sign Up') }}
+                </button>
+
+                <div style="text-align: center; color: #718096; font-size: 0.9rem;">
+                    {{ authMode === 'signin' ? "Don't have an account?" : "Already have an account?" }}
+                    <a href="#" @click.prevent="toggleAuthMode" style="color: #667eea; text-decoration: none; font-weight: 500;">
+                        {{ authMode === 'signin' ? 'Sign Up' : 'Sign In' }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const { createClient } = supabase;
+
+        // Replace with your actual Supabase credentials
+        const SUPABASE_URL = 'https://mpuomfxrhhdlgidjujtt.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wdW9tZnhyaGhkbGdpZGp1anR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzE4NTksImV4cCI6MjA3OTAwNzg1OX0.xkVcNtlRrM1dswV488JU0jbSew-m1cwNoI2RdbBnaF4';
+        const API_BASE_URL = ''; // Empty string means same origin (current server)
+
+        // Initialize Supabase client with error handling
+        let supabaseClient = null;
+        try {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('http')) {
+                supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.warn('Supabase not configured or invalid credentials:', err.message);
+        }
+
+        createApp({
+            data() {
+                return {
+                    user: null,
+                    longUrl: '',
+                    customCode: '',
+                    shortUrl: '',
+                    loading: false,
+                    error: '',
+                    success: '',
+                    showAuth: false,
+                    authEmail: '',
+                    authPassword: '',
+                    authMode: 'signin', // 'signin' or 'signup'
+                    activeTab: 'shorten',
+                    history: [],
+                    historyLoading: false,
+                    isChecking: false,
+                    isAvailable: false,
+                    baseUrl: window.location.origin,
+                    editingUrl: null,
+                    editMode: false,
+                    editOriginalUrl: '',
+                    editCustomCode: ''
+                };
+            },
+            watch: {
+                error(newVal) {
+                    if (newVal) {
+                        setTimeout(() => {
+                            this.error = '';
+                        }, 5000);
+                    }
+                },
+                success(newVal) {
+                    if (newVal) {
+                        setTimeout(() => {
+                            this.success = '';
+                        }, 5000);
+                    }
+                }
+            },
+            async mounted() {
+                // Check for existing session only if Supabase is configured
+                if (supabaseClient) {
+                    try {
+                        const { data: { session } } = await supabaseClient.auth.getSession();
+                        if (session) {
+                            this.user = session.user;
+                        }
+
+                        // Listen for auth changes
+                        supabaseClient.auth.onAuthStateChange((event, session) => {
+                            this.user = session?.user || null;
+                        });
+                    } catch (err) {
+                        console.warn('Auth check failed:', err.message);
+                    }
+                }
+            },
+            methods: {
+                async shortenUrl() {
+                    if (!this.longUrl) {
+                        this.error = 'Please enter a URL';
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.error = '';
+                    this.success = '';
+
+                    try {
+                        const headers = {
+                            'Content-Type': 'application/json'
+                        };
+
+                        // Add auth token if user is signed in
+                        if (this.user && supabaseClient) {
+                            try {
+                                const { data: { session } } = await supabaseClient.auth.getSession();
+                                if (session) {
+                                    headers['Authorization'] = `Bearer ${session.access_token}`;
+                                }
+                            } catch (err) {
+                                console.warn('Failed to get session:', err.message);
+                            }
+                        }
+
+                        const response = await fetch(`${API_BASE_URL}/api/url/shorten`, {
+                            method: 'POST',
+                            headers,
+                            body: JSON.stringify({
+                                originalUrl: this.longUrl,
+                                customCode: this.customCode || null
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            this.shortUrl = data.shortUrl;
+                            this.success = 'URL shortened successfully!';
+                            this.longUrl = '';
+                            this.customCode = '';
+                        } else {
+                            this.error = data.error || 'Failed to shorten URL';
+                        }
+                    } catch (err) {
+                        this.error = 'Network error. Please try again.';
+                        console.error(err);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async checkAvailability() {
+                    if (!this.customCode || this.customCode.length < 3) {
+                        this.isAvailable = false;
+                        return;
+                    }
+
+                    this.isChecking = true;
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/api/url/check/${this.customCode}`);
+                        const data = await response.json();
+                        this.isAvailable = data.available;
+                    } catch (err) {
+                        console.error(err);
+                    } finally {
+                        this.isChecking = false;
+                    }
+                },
+
+                async loadHistory() {
+                    if (!this.user || !supabaseClient) return;
+
+                    this.historyLoading = true;
+                    try {
+                        const { data: { session } } = await supabaseClient.auth.getSession();
+                        const response = await fetch(`${API_BASE_URL}/api/url/history`, {
+                            headers: {
+                                'Authorization': `Bearer ${session.access_token}`
+                            }
+                        });
+
+                        const data = await response.json();
+                        this.history = data.urls || [];
+                    } catch (err) {
+                        this.error = 'Failed to load history';
+                        console.error(err);
+                    } finally {
+                        this.historyLoading = false;
+                    }
+                },
+
+                copyToClipboard() {
+                    navigator.clipboard.writeText(this.shortUrl);
+                    this.success = 'Copied to clipboard!';
+                    setTimeout(() => this.success = '', 3000);
+                },
+
+                showAuthModal() {
+                    this.showAuth = true;
+                    this.authMode = 'signin';
+                    this.error = '';
+                },
+
+                toggleAuthMode() {
+                    this.authMode = this.authMode === 'signin' ? 'signup' : 'signin';
+                    this.error = '';
+                },
+
+                async signInWithDiscord() {
+                    if (!supabaseClient) {
+                        this.error = 'Authentication not configured';
+                        return;
+                    }
+                    
+                    try {
+                        const { error } = await supabaseClient.auth.signInWithOAuth({
+                            provider: 'discord',
+                            options: {
+                                redirectTo: window.location.origin
+                            }
+                        });
+
+                        if (error) throw error;
+                    } catch (err) {
+                        this.error = err.message;
+                    }
+                },
+
+                async signInWithGitHub() {
+                    if (!supabaseClient) {
+                        this.error = 'Authentication not configured';
+                        return;
+                    }
+                    
+                    try {
+                        const { error } = await supabaseClient.auth.signInWithOAuth({
+                            provider: 'github',
+                            options: {
+                                redirectTo: window.location.origin
+                            }
+                        });
+
+                        if (error) throw error;
+                    } catch (err) {
+                        this.error = err.message;
+                    }
+                },
+
+                async signIn() {
+                    if (!supabaseClient) {
+                        this.error = 'Authentication not configured';
+                        return;
+                    }
+
+                    if (!this.authEmail || !this.authPassword) {
+                        this.error = 'Please enter email and password';
+                        return;
+                    }
+
+                    // Trim whitespace
+                    const email = this.authEmail.trim();
+                    const password = this.authPassword.trim();
+
+                    if (!email || !password) {
+                        this.error = 'Email and password cannot be empty';
+                        return;
+                    }
+
+                    // Basic email validation
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        this.error = 'Please enter a valid email address';
+                        return;
+                    }
+                    
+                    try {
+                        this.loading = true;
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+
+                        if (error) {
+                            console.error('Sign in error:', error);
+                            throw error;
+                        }
+                        
+                        if (data?.user) {
+                            this.showAuth = false;
+                            this.success = 'Signed in successfully!';
+                            this.authEmail = '';
+                            this.authPassword = '';
+                        }
+                    } catch (err) {
+                        console.error('Sign in failed:', err);
+                        // Provide user-friendly error messages
+                        if (err.message.includes('Invalid login credentials')) {
+                            this.error = 'Invalid email or password';
+                        } else if (err.message.includes('Email not confirmed')) {
+                            this.error = 'Please verify your email first';
+                        } else {
+                            this.error = err.message || 'Sign in failed. Please try again.';
+                        }
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async signUp() {
+                    if (!supabaseClient) {
+                        this.error = 'Authentication not configured';
+                        return;
+                    }
+
+                    if (!this.authEmail || !this.authPassword) {
+                        this.error = 'Please enter email and password';
+                        return;
+                    }
+
+                    // Trim whitespace
+                    const email = this.authEmail.trim();
+                    const password = this.authPassword.trim();
+
+                    if (!email || !password) {
+                        this.error = 'Email and password cannot be empty';
+                        return;
+                    }
+
+                    // Basic email validation
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        this.error = 'Please enter a valid email address';
+                        return;
+                    }
+
+                    if (password.length < 6) {
+                        this.error = 'Password must be at least 6 characters';
+                        return;
+                    }
+                    
+                    try {
+                        this.loading = true;
+                        const { data, error } = await supabaseClient.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                emailRedirectTo: window.location.origin,
+                                data: {
+                                    email_confirm: false
+                                }
+                            }
+                        });
+
+                        if (error) {
+                            console.error('Sign up error:', error);
+                            throw error;
+                        }
+
+                        if (data?.user) {
+                            // Check if email confirmation is required
+                            if (data.user.identities && data.user.identities.length === 0) {
+                                this.error = 'This email is already registered. Please sign in instead.';
+                                setTimeout(() => {
+                                    this.authMode = 'signin';
+                                    this.error = '';
+                                }, 2000);
+                            } else {
+                                this.success = 'Account created successfully! You can now sign in.';
+                                this.authEmail = '';
+                                this.authPassword = '';
+                                setTimeout(() => {
+                                    this.authMode = 'signin';
+                                }, 2000);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Sign up failed:', err);
+                        // Provide user-friendly error messages
+                        if (err.message.includes('already registered')) {
+                            this.error = 'This email is already registered. Please sign in.';
+                            setTimeout(() => {
+                                this.authMode = 'signin';
+                                this.error = '';
+                            }, 2000);
+                        } else if (err.message.includes('Password should be')) {
+                            this.error = 'Password must be at least 6 characters';
+                        } else {
+                            this.error = err.message || 'Sign up failed. Please try again.';
+                        }
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async signOut() {
+                    if (!supabaseClient) return;
+                    
+                    await supabaseClient.auth.signOut();
+                    this.success = 'Signed out successfully!';
+                    this.activeTab = 'shorten';
+                },
+
+                startEdit(item) {
+                    this.editingUrl = item;
+                    this.editMode = true;
+                    this.editOriginalUrl = item.originalUrl;
+                    this.editCustomCode = item.isCustom ? item.shortCode : '';
+                    this.activeTab = 'shorten';
+                    window.scrollTo(0, 0);
+                },
+
+                cancelEdit() {
+                    this.editMode = false;
+                    this.editingUrl = null;
+                    this.editOriginalUrl = '';
+                    this.editCustomCode = '';
+                },
+
+                async saveEdit() {
+                    if (!this.editingUrl) return;
+
+                    this.loading = true;
+                    this.error = '';
+                    this.success = '';
+
+                    try {
+                        const headers = {
+                            'Content-Type': 'application/json'
+                        };
+
+                        if (this.user && supabaseClient) {
+                            try {
+                                const { data: { session } } = await supabaseClient.auth.getSession();
+                                if (session) {
+                                    headers['Authorization'] = `Bearer ${session.access_token}`;
+                                }
+                            } catch (err) {
+                                console.warn('Failed to get session:', err.message);
+                            }
+                        }
+
+                        const body = {
+                            originalUrl: this.editOriginalUrl || null,
+                            generateRandom: !this.editCustomCode || this.editCustomCode.trim() === ''
+                        };
+
+                        if (this.editCustomCode && this.editCustomCode.trim() !== '') {
+                            body.newCustomCode = this.editCustomCode.trim();
+                        }
+
+                        const response = await fetch(`${API_BASE_URL}/api/url/${this.editingUrl.shortCode}`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify(body)
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            this.success = 'URL updated successfully!';
+                            this.cancelEdit();
+                            await this.loadHistory();
+                        } else {
+                            this.error = data.error || 'Failed to update URL';
+                        }
+                    } catch (err) {
+                        this.error = 'Network error. Please try again.';
+                        console.error(err);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async deleteUrl(item) {
+                    if (!confirm(`Are you sure you want to delete ${this.baseUrl}/${item.shortCode}?`)) {
+                        return;
+                    }
+
+                    try {
+                        const headers = {};
+                        if (this.user && supabaseClient) {
+                            const { data: { session } } = await supabaseClient.auth.getSession();
+                            if (session) {
+                                headers['Authorization'] = `Bearer ${session.access_token}`;
+                            }
+                        }
+
+                        const response = await fetch(`${API_BASE_URL}/api/url/${item.shortCode}`, {
+                            method: 'DELETE',
+                            headers
+                        });
+
+                        if (response.ok) {
+                            this.success = 'URL deleted successfully!';
+                            await this.loadHistory();
+                        } else {
+                            const data = await response.json();
+                            this.error = data.error || 'Failed to delete URL';
+                        }
+                    } catch (err) {
+                        this.error = 'Network error. Please try again.';
+                        console.error(err);
+                    }
+                },
+
+                formatDate(date) {
+                    return new Date(date).toLocaleDateString();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
