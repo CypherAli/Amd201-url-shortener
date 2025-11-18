@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMD201 URL Shortener</title>
+    <title>AMD Short link</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -15,14 +15,129 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Decorative GIF containers */
+        .gif-decorations {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gif-item {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            opacity: 0.85;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .gif-item:nth-child(1) {
+            top: 5%;
+            left: 2%;
+            width: 90px;
+            height: 90px;
+            animation-delay: 0s;
+        }
+
+        .gif-item:nth-child(2) {
+            top: 30%;
+            left: 1%;
+            width: 95px;
+            height: 95px;
+            animation-delay: 0.5s;
+        }
+
+        .gif-item:nth-child(3) {
+            top: 55%;
+            left: 3%;
+            width: 100px;
+            height: 100px;
+            animation-delay: 1s;
+        }
+
+        .gif-item:nth-child(4) {
+            top: 5%;
+            right: 2%;
+            width: 95px;
+            height: 95px;
+            animation-delay: 1.5s;
+        }
+
+        .gif-item:nth-child(5) {
+            top: 30%;
+            right: 1%;
+            width: 100px;
+            height: 100px;
+            animation-delay: 2s;
+        }
+
+        .gif-item:nth-child(6) {
+            top: 55%;
+            right: 3%;
+            width: 95px;
+            height: 95px;
+            animation-delay: 2.5s;
+        }
+
+        .gif-item:nth-child(7) {
+            bottom: 5%;
+            left: 25%;
+            width: 100px;
+            height: 100px;
+            animation-delay: 3s;
+            transform: translateX(-50%);
+        }
+
+        .gif-item:nth-child(8) {
+            bottom: 5%;
+            right: 25%;
+            width: 90px;
+            height: 90px;
+            animation-delay: 3.5s;
+            transform: translateX(50%);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         #app {
             max-width: 800px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -270,12 +385,175 @@
             height: 2px;
             background: #667eea;
         }
+
+        /* Auth Modal Overlay with improved styling */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .auth-modal {
+            animation: slideUp 0.3s ease-out;
+            width: 450px;
+            max-width: 90%;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-mode-signin .auth-title::before {
+            content: '🔓';
+        }
+
+        .auth-mode-signup .auth-title::before {
+            content: '✨';
+        }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+            pointer-events: auto;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.fade-out {
+            animation: slideOutRight 0.3s ease-in;
+        }
+
+        .toast-success {
+            border-left: 4px solid #48bb78;
+            background: #f0fff4;
+        }
+
+        .toast-success .toast-icon {
+            color: #48bb78;
+            font-size: 1.2rem;
+        }
+
+        .toast-success .toast-text {
+            color: #22543d;
+        }
+
+        .toast-error {
+            border-left: 4px solid #f56565;
+            background: #fff5f5;
+        }
+
+        .toast-error .toast-icon {
+            color: #f56565;
+            font-size: 1.2rem;
+        }
+
+        .toast-error .toast-text {
+            color: #742a2a;
+        }
+
+        .toast-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Focus trap for modal */
+        .modal-focus-trap {
+            pointer-events: auto;
+        }
+
+        /* Prevent scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
+    <!-- Decorative GIF containers -->
+    <div class="gif-decorations">
+        <div class="gif-item" style="background-image: url('./assets/03db66241697a1c8121d51990d8f6435.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/arisu-aris.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/burnice-other-quiality.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/trickcal-butter.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/trickcal-chibi-go-kommy.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/trickcal-trickcal-chibi-go.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/yBaWlQa.gif');"></div>
+        <div class="gif-item" style="background-image: url('./assets/嘟嘟臉-艾爾芬.gif');"></div>
+    </div>
+
     <div id="app">
         <div class="header">
-            <h1>🔗 AMD201 URL Shortener</h1>
+            <h1>🔗 AMD Short Link</h1>
             <p>Shorten your URLs quickly and easily</p>
         </div>
 
@@ -304,6 +582,14 @@
 
             <div v-if="error" class="error">{{ error }}</div>
             <div v-if="success" class="success">{{ success }}</div>
+
+            <!-- Toast notifications -->
+            <div class="toast-container">
+                <div v-for="(toast, index) in toasts" :key="index" class="toast" :class="'toast-' + toast.type">
+                    <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</span>
+                    <span class="toast-text">{{ toast.message }}</span>
+                </div>
+            </div>
 
             <!-- Shorten URL Tab -->
             <div v-show="!user || activeTab === 'shorten'">
@@ -419,11 +705,11 @@
         </div>
 
         <!-- Auth Modal -->
-        <div v-if="showAuth" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" @click.self="showAuth = false">
-            <div class="card" style="width: 450px; max-width: 90%;">
-                <h2 style="margin-bottom: 10px;">{{ authMode === 'signin' ? 'Sign In' : 'Sign Up' }}</h2>
+        <div v-if="showAuth" class="auth-overlay" @click.self="showAuth = false">
+            <div class="card auth-modal" :class="'auth-mode-' + authMode">
+                <h2 class="auth-title">{{ authMode === 'signin' ? 'Sign In' : 'Create Account' }}</h2>
                 <p style="color: #718096; margin-bottom: 25px; font-size: 0.95rem;">
-                    {{ authMode === 'signin' ? 'Welcome back! Sign in to your account' : 'Create a new account to get started' }}
+                    {{ authMode === 'signin' ? '👋 Welcome back! Sign in to your account' : '🎉 Create a new account to get started' }}
                 </p>
 
                 <!-- Social Login Buttons -->
@@ -510,7 +796,8 @@
                     editCustomCode: '',
                     showQrModal: false,
                     currentQrCode: '',
-                    currentShortUrl: ''
+                    currentShortUrl: '',
+                    toasts: []
                 };
             },
             watch: {
@@ -526,6 +813,13 @@
                         setTimeout(() => {
                             this.success = '';
                         }, 5000);
+                    }
+                },
+                showAuth(newVal) {
+                    if (newVal) {
+                        document.body.classList.add('modal-open');
+                    } else {
+                        document.body.classList.remove('modal-open');
                     }
                 }
             },
@@ -547,10 +841,26 @@
                     }
                 }
             },
+            beforeUnmount() {
+                document.body.classList.remove('modal-open');
+            },
             methods: {
+                showToast(message, type = 'success', duration = 3000) {
+                    const toastId = Date.now();
+                    const toast = { message, type, id: toastId };
+                    this.toasts.push(toast);
+
+                    setTimeout(() => {
+                        const index = this.toasts.findIndex(t => t.id === toastId);
+                        if (index > -1) {
+                            this.toasts.splice(index, 1);
+                        }
+                    }, duration);
+                },
+
                 async shortenUrl() {
                     if (!this.longUrl) {
-                        this.error = 'Please enter a URL';
+                        this.showToast('Please enter a URL', 'error');
                         return;
                     }
 
@@ -589,14 +899,14 @@
                         if (response.ok) {
                             this.shortUrl = data.shortUrl;
                             this.qrCodeUrl = data.qrCodeUrl;
-                            this.success = 'URL shortened successfully!';
+                            this.showToast('URL shortened successfully! 🎉', 'success');
                             this.longUrl = '';
                             this.customCode = '';
                         } else {
-                            this.error = data.error || 'Failed to shorten URL';
+                            this.showToast(data.error || 'Failed to shorten URL', 'error');
                         }
                     } catch (err) {
-                        this.error = 'Network error. Please try again.';
+                        this.showToast('Network error. Please try again.', 'error');
                         console.error(err);
                     } finally {
                         this.loading = false;
@@ -645,14 +955,14 @@
 
                 copyToClipboard() {
                     navigator.clipboard.writeText(this.shortUrl);
-                    this.success = 'Copied to clipboard!';
-                    setTimeout(() => this.success = '', 3000);
+                    this.showToast('Copied to clipboard! 📋', 'success', 2000);
                 },
 
                 showAuthModal() {
                     this.showAuth = true;
                     this.authMode = 'signin';
                     this.error = '';
+                    document.body.classList.add('modal-open');
                 },
 
                 toggleAuthMode() {
@@ -702,12 +1012,12 @@
 
                 async signIn() {
                     if (!supabaseClient) {
-                        this.error = 'Authentication not configured';
+                        this.showToast('Authentication not configured', 'error');
                         return;
                     }
 
                     if (!this.authEmail || !this.authPassword) {
-                        this.error = 'Please enter email and password';
+                        this.showToast('Please enter email and password', 'error');
                         return;
                     }
 
@@ -716,14 +1026,14 @@
                     const password = this.authPassword.trim();
 
                     if (!email || !password) {
-                        this.error = 'Email and password cannot be empty';
+                        this.showToast('Email and password cannot be empty', 'error');
                         return;
                     }
 
                     // Basic email validation
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRegex.test(email)) {
-                        this.error = 'Please enter a valid email address';
+                        this.showToast('Please enter a valid email address', 'error');
                         return;
                     }
                     
@@ -741,7 +1051,8 @@
                         
                         if (data?.user) {
                             this.showAuth = false;
-                            this.success = 'Signed in successfully!';
+                            document.body.classList.remove('modal-open');
+                            this.showToast('Welcome back! Signed in successfully! 🎉', 'success');
                             this.authEmail = '';
                             this.authPassword = '';
                         }
@@ -749,11 +1060,11 @@
                         console.error('Sign in failed:', err);
                         // Provide user-friendly error messages
                         if (err.message.includes('Invalid login credentials')) {
-                            this.error = 'Invalid email or password';
+                            this.showToast('Invalid email or password ❌', 'error');
                         } else if (err.message.includes('Email not confirmed')) {
-                            this.error = 'Please verify your email first';
+                            this.showToast('Please verify your email first ✉️', 'error');
                         } else {
-                            this.error = err.message || 'Sign in failed. Please try again.';
+                            this.showToast(err.message || 'Sign in failed. Please try again.', 'error');
                         }
                     } finally {
                         this.loading = false;
@@ -762,12 +1073,12 @@
 
                 async signUp() {
                     if (!supabaseClient) {
-                        this.error = 'Authentication not configured';
+                        this.showToast('Authentication not configured', 'error');
                         return;
                     }
 
                     if (!this.authEmail || !this.authPassword) {
-                        this.error = 'Please enter email and password';
+                        this.showToast('Please enter email and password', 'error');
                         return;
                     }
 
@@ -776,19 +1087,19 @@
                     const password = this.authPassword.trim();
 
                     if (!email || !password) {
-                        this.error = 'Email and password cannot be empty';
+                        this.showToast('Email and password cannot be empty', 'error');
                         return;
                     }
 
                     // Basic email validation
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRegex.test(email)) {
-                        this.error = 'Please enter a valid email address';
+                        this.showToast('Please enter a valid email address', 'error');
                         return;
                     }
 
                     if (password.length < 6) {
-                        this.error = 'Password must be at least 6 characters';
+                        this.showToast('Password must be at least 6 characters', 'error');
                         return;
                     }
                     
@@ -813,13 +1124,12 @@
                         if (data?.user) {
                             // Check if email confirmation is required
                             if (data.user.identities && data.user.identities.length === 0) {
-                                this.error = 'This email is already registered. Please sign in instead.';
+                                this.showToast('This email is already registered. Please sign in instead.', 'error');
                                 setTimeout(() => {
                                     this.authMode = 'signin';
-                                    this.error = '';
                                 }, 2000);
                             } else {
-                                this.success = 'Account created successfully! You can now sign in.';
+                                this.showToast('Account created successfully! 🎉 You can now sign in.', 'success');
                                 this.authEmail = '';
                                 this.authPassword = '';
                                 setTimeout(() => {
@@ -831,15 +1141,14 @@
                         console.error('Sign up failed:', err);
                         // Provide user-friendly error messages
                         if (err.message.includes('already registered')) {
-                            this.error = 'This email is already registered. Please sign in.';
+                            this.showToast('This email is already registered. Please sign in.', 'error');
                             setTimeout(() => {
                                 this.authMode = 'signin';
-                                this.error = '';
                             }, 2000);
                         } else if (err.message.includes('Password should be')) {
-                            this.error = 'Password must be at least 6 characters';
+                            this.showToast('Password must be at least 6 characters', 'error');
                         } else {
-                            this.error = err.message || 'Sign up failed. Please try again.';
+                            this.showToast(err.message || 'Sign up failed. Please try again.', 'error');
                         }
                     } finally {
                         this.loading = false;
@@ -850,7 +1159,7 @@
                     if (!supabaseClient) return;
                     
                     await supabaseClient.auth.signOut();
-                    this.success = 'Signed out successfully!';
+                    this.showToast('Signed out successfully! 👋', 'success');
                     this.activeTab = 'shorten';
                 },
 
@@ -917,14 +1226,14 @@
                         const data = await response.json();
 
                         if (response.ok) {
-                            this.success = 'URL updated successfully!';
+                            this.showToast('URL updated successfully! 💾', 'success');
                             this.cancelEdit();
                             await this.loadHistory();
                         } else {
-                            this.error = data.error || 'Failed to update URL';
+                            this.showToast(data.error || 'Failed to update URL', 'error');
                         }
                     } catch (err) {
-                        this.error = 'Network error. Please try again.';
+                        this.showToast('Network error. Please try again.', 'error');
                         console.error(err);
                     } finally {
                         this.loading = false;
@@ -951,14 +1260,14 @@
                         });
 
                         if (response.ok) {
-                            this.success = 'URL deleted successfully!';
+                            this.showToast('URL deleted successfully! 🗑️', 'success');
                             await this.loadHistory();
                         } else {
                             const data = await response.json();
-                            this.error = data.error || 'Failed to delete URL';
+                            this.showToast(data.error || 'Failed to delete URL', 'error');
                         }
                     } catch (err) {
-                        this.error = 'Network error. Please try again.';
+                        this.showToast('Network error. Please try again.', 'error');
                         console.error(err);
                     }
                 },
