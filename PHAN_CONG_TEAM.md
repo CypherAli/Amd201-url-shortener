@@ -79,7 +79,7 @@ Phát triển giao diện người dùng Single Page Application (SPA) với Vue
 
 ---
 
-## ⚙️ BACKEND DEVELOPER 1
+## ⚙️ BACKEND DEVELOPER 1 - Quang Anh
 
 ### Trách nhiệm chính
 API Layer & Controllers - Xử lý HTTP requests/responses
