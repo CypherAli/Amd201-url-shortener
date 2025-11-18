@@ -139,8 +139,14 @@ else
 app.UseCors("AllowAll");
 
 // Serve static files (Frontend)
+var staticFileOptions = new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot")),
+    RequestPath = new Microsoft.AspNetCore.Http.PathString("")
+};
+app.UseStaticFiles(staticFileOptions);
 app.UseDefaultFiles();
-app.UseStaticFiles();
 
 // Custom middleware for Supabase authentication
 app.UseMiddleware<SupabaseAuthMiddleware>();
