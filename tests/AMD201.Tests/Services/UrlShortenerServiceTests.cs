@@ -10,12 +10,16 @@ namespace AMD201.Tests.Services
     public class UrlShortenerServiceTests
     {
         private readonly Mock<IUrlRepository> _mockRepository;
+        private readonly Mock<IQrCodeService> _mockQrCodeService;
         private readonly UrlShortenerService _service;
 
         public UrlShortenerServiceTests()
         {
             _mockRepository = new Mock<IUrlRepository>();
-            _service = new UrlShortenerService(_mockRepository.Object);
+            _mockQrCodeService = new Mock<IQrCodeService>();
+            _mockQrCodeService.Setup(q => q.GenerateQrCode(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(new byte[] { 0x00, 0x01, 0x02 });
+            _service = new UrlShortenerService(_mockRepository.Object, _mockQrCodeService.Object);
         }
 
         [Fact]

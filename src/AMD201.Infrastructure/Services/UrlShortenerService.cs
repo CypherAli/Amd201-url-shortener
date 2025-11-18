@@ -8,12 +8,14 @@ namespace AMD201.Infrastructure.Services
     public class UrlShortenerService : IUrlShortenerService
     {
         private readonly IUrlRepository _urlRepository;
+        private readonly IQrCodeService _qrCodeService;
         private const string Characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         private const int ShortCodeLength = 6;
 
-        public UrlShortenerService(IUrlRepository urlRepository)
+        public UrlShortenerService(IUrlRepository urlRepository, IQrCodeService qrCodeService)
         {
             _urlRepository = urlRepository;
+            _qrCodeService = qrCodeService;
         }
 
         public async Task<ShortenUrlResponse> ShortenUrlAsync(ShortenUrlRequest request, string? userId, string baseUrl)
@@ -66,13 +68,15 @@ namespace AMD201.Infrastructure.Services
 
             await _urlRepository.AddAsync(shortenedUrl);
 
+            var shortUrl = $"{baseUrl}/{shortCode}";
             return new ShortenUrlResponse
             {
                 ShortCode = shortCode,
-                ShortUrl = $"{baseUrl}/{shortCode}",
+                ShortUrl = shortUrl,
                 OriginalUrl = request.OriginalUrl,
                 CreatedAt = shortenedUrl.CreatedAt,
-                ExpiresAt = shortenedUrl.ExpiresAt
+                ExpiresAt = shortenedUrl.ExpiresAt,
+                QrCodeUrl = $"{baseUrl}/api/url/qr/{shortCode}"
             };
         }
 
@@ -149,7 +153,8 @@ namespace AMD201.Infrastructure.Services
                     OriginalUrl = u.OriginalUrl,
                     ClickCount = u.ClickCount,
                     CreatedAt = u.CreatedAt,
-                    IsCustom = u.IsCustom
+                    IsCustom = u.IsCustom,
+                    QrCodeUrl = $"/api/url/qr/{u.ShortCode}"
                 }).ToList(),
                 TotalUrls = totalCount,
                 TotalClicks = urls.Sum(u => u.ClickCount)
@@ -223,13 +228,15 @@ namespace AMD201.Infrastructure.Services
 
             await _urlRepository.UpdateAsync(url);
 
+            var shortUrl = $"{baseUrl}/{newShortCode}";
             return new ShortenUrlResponse
             {
                 ShortCode = newShortCode,
-                ShortUrl = $"{baseUrl}/{newShortCode}",
+                ShortUrl = shortUrl,
                 OriginalUrl = url.OriginalUrl,
                 CreatedAt = url.CreatedAt,
-                ExpiresAt = url.ExpiresAt
+                ExpiresAt = url.ExpiresAt,
+                QrCodeUrl = $"{baseUrl}/api/url/qr/{newShortCode}"
             };
         }
 

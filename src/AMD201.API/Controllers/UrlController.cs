@@ -10,11 +10,13 @@ namespace AMD201.API.Controllers
     public class UrlController : ControllerBase
     {
         private readonly IUrlShortenerService _urlService;
+        private readonly IQrCodeService _qrCodeService;
         private readonly ILogger<UrlController> _logger;
 
-        public UrlController(IUrlShortenerService urlService, ILogger<UrlController> logger)
+        public UrlController(IUrlShortenerService urlService, IQrCodeService qrCodeService, ILogger<UrlController> logger)
         {
             _urlService = urlService;
+            _qrCodeService = qrCodeService;
             _logger = logger;
         }
 
@@ -196,6 +198,36 @@ namespace AMD201.API.Controllers
             {
                 _logger.LogError(ex, "Error updating URL {ShortCode} for user {UserId}", shortCode, userId);
                 return StatusCode(500, new { error = "An error occurred while updating the URL" });
+            }
+        }
+
+        /// <summary>
+        /// Get QR code for a shortened URL as PNG image - QR contains the ORIGINAL URL
+        /// </summary>
+        [HttpGet("qr/{shortCode}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetQrCode(string shortCode, [FromQuery] int size = 10)
+        {
+            try
+            {
+                var originalUrl = await _urlService.GetOriginalUrlAsync(shortCode);
+                
+                if (originalUrl == null)
+                {
+                    return NotFound(new { error = "Short URL not found or expired" });
+                }
+
+                // QR code chứa LINK GỐC, không phải link rút gọn
+                // Khi scan QR code = điện thoại → truy cập trực tiếp vào trang gốc
+                var qrCodeBytes = _qrCodeService.GenerateQrCode(originalUrl, size);
+                
+                return File(qrCodeBytes, "image/png");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating QR code for {ShortCode}", shortCode);
+                return StatusCode(500, new { error = "An error occurred while generating QR code" });
             }
         }
     }

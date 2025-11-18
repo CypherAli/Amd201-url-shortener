@@ -84,6 +84,7 @@ builder.Services.AddCors(options =>
 // Register Services
 builder.Services.AddScoped<IUrlRepository, UrlRepository>();
 builder.Services.AddScoped<IUrlShortenerService, UrlShortenerService>();
+builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 
 var app = builder.Build();
 

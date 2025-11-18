@@ -21,6 +21,7 @@ namespace AMD201.Core.DTOs
         public string OriginalUrl { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
+        public string QrCodeUrl { get; set; } = string.Empty;
     }
 
     public class UrlStatisticsResponse
@@ -55,5 +56,6 @@ namespace AMD201.Core.DTOs
         public int ClickCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsCustom { get; set; }
+        public string QrCodeUrl { get; set; } = string.Empty;
     }
 }
