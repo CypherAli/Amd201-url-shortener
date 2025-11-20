@@ -13,6 +13,13 @@ namespace AMD201.Infrastructure.Data
         public DbSet<ShortenedUrl> ShortenedUrls { get; set; }
         public DbSet<ClickStatistic> ClickStatistics { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.ConfigureWarnings(w => 
+                w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
