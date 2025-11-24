@@ -6,4 +6,4 @@
 ## ⚙️ Hướng Dẫn Sử Dụng
 ### 1. Kéo Image
 ```bash
-docker pull doquanganh/url-shortener:latest
+docker pull doquanganh/url_shortener:latest

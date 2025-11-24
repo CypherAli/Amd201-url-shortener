@@ -167,5 +167,19 @@ app.MapGet("/health", () => Results.Ok(new
 // Fallback to index.html for SPA routing
 app.MapFallbackToFile("index.html");
 
+// Log startup information
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+lifetime.ApplicationStarted.Register(() =>
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("╔════════════════════════════════════════╗");
+    logger.LogInformation("║   🚀 AMD201 URL Shortener API Started  ║");
+    logger.LogInformation("╚════════════════════════════════════════╝");
+    logger.LogInformation("🌐 Web Application: http://localhost:8080/");
+    logger.LogInformation("📚 Swagger Docs:    http://localhost:8080/swagger");
+    logger.LogInformation("❤️  Health Check:    http://localhost:8080/health");
+    logger.LogInformation("════════════════════════════════════════");
+});
+
 app.Run();
 
