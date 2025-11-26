@@ -5,7 +5,7 @@ WORKDIR /src
 
 # Copy solution and project files
 COPY ["AMD201.sln", "./"]
-COPY ["src/AMD201.API/AMD201.API.csproj", "src/.AMD201.API/"]
+COPY ["src/AMD201.API/AMD201.API.csproj", "src/AMD201.API/"]
 COPY ["src/AMD201.Core/AMD201.Core.csproj", "src/AMD201.Core/"]
 COPY ["src/AMD201.Infrastructure/AMD201.Infrastructure.csproj", "src/AMD201.Infrastructure/"]
 COPY ["tests/AMD201.Tests/AMD201.Tests.csproj", "tests/AMD201.Tests/"]
