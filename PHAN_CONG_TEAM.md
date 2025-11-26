@@ -418,13 +418,13 @@ Business Logic & Data Access Layer
 ## 🎯 Features Overview
 
 ### Core Features
-✅ **URL Shortening** - Random hoặc custom short codes  
-✅ **Authentication** - Email/Password + Social Login (Discord, GitHub)  
-✅ **Authorization** - Public access + User-specific features  
-✅ **URL Management** - Create, Read, Update, Delete  
-✅ **Analytics** - Click tracking với geo data  
-✅ **Expiration** - Optional expiry dates  
-✅ **Real-time Validation** - Check custom code availability  
+✅ **URL Shortening** - Random hoặc custom short codes
+✅ **Authentication** - Email/Password + Social Login (Discord, GitHub)
+✅ **Authorization** - Public access + User-specific features
+✅ **URL Management** - Create, Read, Update, Delete
+✅ **Analytics** - Click tracking với geo data
+✅ **Expiration** - Optional expiry dates
+✅ **Real-time Validation** - Check custom code availability
 
 ### Technical Stack
 - **Frontend**: Vue.js 3, Supabase Auth Client
