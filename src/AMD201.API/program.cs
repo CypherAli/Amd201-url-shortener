@@ -175,7 +175,7 @@ lifetime.ApplicationStarted.Register(() =>
     logger.LogInformation("════════════════════════════════════════");
     logger.LogInformation("   AMD201 URL Shortener API Started");
     logger.LogInformation("════════════════════════════════════════");
-    logger.LogInformation("Web Application: http://localhost:8081/");
+    logger.LogInformation("Web Application: http://localhost:8080/");
     logger.LogInformation("Swagger Docs:    http://localhost:8080/swagger");
     logger.LogInformation("Health Check:    http://localhost:8080/health");
     logger.LogInformation("════════════════════════════════════════");
