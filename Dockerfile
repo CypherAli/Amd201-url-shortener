@@ -12,7 +12,7 @@ COPY ["tests/AMD201.Tests/AMD201.Tests.csproj", "tests/AMD201.Tests/"]
 
 # Restore dependencies
 RUN dotnet restore "AMD201.sln"
-COPY ["non-existent-file.txt", "./"]
+
 # Copy all source files
 COPY . .
 
