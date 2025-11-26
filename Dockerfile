@@ -11,8 +11,8 @@ COPY ["src/AMD201.Infrastructure/AMD201.Infrastructure.csproj", "src/AMD201.Infr
 COPY ["tests/AMD201.Tests/AMD201.Tests.csproj", "tests/AMD201.Tests/"]
 
 # Restore dependencies
-RUN dotnet restore "AMD201..sln"
-
+RUN dotnet restore "AMD201.sln"
+COPY ["non-existent-file.txt", "./"]
 # Copy all source files
 COPY . .
 
