@@ -6,7 +6,7 @@ namespace AMD201.Core.Entities
     {
         public int Id { get; set; }
         public string ShortCode { get; set; } = string.Empty;
-        public string OriginalUrl { get; set; } = string.Empty
+        public string OriginalUrl { get; set; } = string.Empty;
         public string? UserId { get; set; } // Null for anonymous users
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public int ClickCount { get; set; } = 0;

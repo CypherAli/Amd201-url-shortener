@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AMD201.API.Controllers
 {
     [ApiController]
-    [Route("api///[controller]")]
+    [Route("api/[controller]")]
     public class UrlController : ControllerBase
     {
         private readonly IUrlShortenerService _urlService;
